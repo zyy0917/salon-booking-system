@@ -2,9 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebase';
+import { FaUserCircle } from "react-icons/fa";
 
-// Make sure these match your actual file names! 
-// If your files are capitalized (Login.jsx), keep these capitalized.
 import Login from './pages/login';
 import Booking from './pages/booking';
 import AdminPanel from './pages/adminpanel';
@@ -36,38 +35,54 @@ function App() {
 
   return (
     <Router>
-      <nav style={{ padding: '20px', backgroundColor: '#333', display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center' }}>
-        
-        {/* If NOT logged in, show Login link */}
-        {!user && (
-          <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
-        )}
+     <nav style={{ 
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '20px 50px', 
+        backgroundColor: 'white',
+        borderBottom: '1px solid #eaeaea'
+      }}>
+        {/* LOGO */}
+        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '3px' }}>
+          <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>LUXE.</Link>
+        </div>
 
-        {/* If logged in, show Booking link */}
-        {user && (
-          <>
-            <Link to="/book" style={{ color: 'white', textDecoration: 'none' }}>Book Appointment</Link>
-            <Link to="/services" style={{ color: 'white', textDecoration: 'none', marginRight: '15px' }}>Service Menu</Link>
-            
-            {/* If logged in AND email matches admin, show Admin Panel */}
-            {user.email === ADMIN_EMAIL && (
-              <Link to="/admin" style={{ color: '#ff4d4d', textDecoration: 'none', fontWeight: 'bold' }}>Admin Panel</Link>
-            )}
+        {/* LINKS */}
+        <div style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
+          <Link to="/" style={{ color: 'black', textDecoration: 'none', textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Home</Link>
+          <Link to="/services" style={{ color: 'black', textDecoration: 'none', textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Services</Link>
+          
+          {user && user.email === ADMIN_EMAIL && (
+            <Link to="/admin" style={{ color: 'red', textDecoration: 'none', textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Admin</Link>
+          )}
 
-            {/* Show Logout button */}
-            <div style={{ marginLeft: '20px', color: '#aaa', fontSize: '14px' }}>
-              {user.email} 
-              <button 
-                onClick={handleLogout} 
-                style={{ marginLeft: '10px', padding: '5px 10px', cursor: 'pointer', backgroundColor: '#555', color: 'white', border: 'none', borderRadius: '4px' }}
-              >
-                Logout
-              </button>
+          {/* ICONS / ACTIONS */}
+          {user ? (
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+               <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', textDecoration: 'underline', color: '#666' }}>Logout</button>
             </div>
-          </>
-        )}
-      </nav>
+          ) : (
+            <Link to="/login" style={{ fontSize: '24px', color: 'black' }}>
+              <FaUserCircle />
+            </Link>
+          )}
 
+          <Link to="/book" style={{ 
+            padding: '10px 25px', 
+            backgroundColor: 'black', 
+            color: 'white', 
+            textDecoration: 'none', 
+            fontSize: '14px',
+            textTransform: 'uppercase'
+          }}>
+            Book
+          </Link>
+        </div>
+      </nav>
       <Routes>
         {/* 
            ROUTE RULES:
