@@ -6,7 +6,7 @@
 }
 
 :root {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* Removed font-family here so each component can control its own fonts */
   line-height: 1.5;
   font-weight: 400;
 }
@@ -18,13 +18,14 @@ body {
   min-height: 100vh;
   background-color: #ffffff;
   color: #333;
+  font-family: sans-serif; /* safe fallback */
 }
 
 #root {
   width: 100%;
   margin: 0;
   padding: 0;
-  max-width: 100%; /* Forces it to fill the screen */
+  max-width: 100%;
 }
 
 button {

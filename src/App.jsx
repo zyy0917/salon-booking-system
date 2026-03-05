@@ -2,22 +2,24 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebase';
-import { FaUserCircle } from "react-icons/fa";
+import { Star } from 'lucide-react';
 
+import Home from './pages/home';
+import About from './pages/about';
 import Login from './pages/login';
+import SignUp from './pages/signup';
 import Booking from './pages/booking';
 import AdminPanel from './pages/adminpanel';
 import Services from './pages/services';
+import ServiceDetails from './pages/ServiceDetails';
 import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Only this email will be able to see the Admin Panel.
-  const ADMIN_EMAIL = "5starsalon.studio@gmail.com"; 
+  const ADMIN_EMAIL = "5starsalon.studio@gmail.com";
 
-  // This effect runs once when the app starts to check if you are logged in
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -26,82 +28,93 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Logout function
   const handleLogout = async () => {
     await signOut(auth);
   };
 
-  if (loading) return <div style={{textAlign: 'center', marginTop: '50px', color:'white'}}>Loading...</div>;
+  if (loading) return (
+    <div style={{ textAlign: 'center', marginTop: '50px', color: '#D4735C', fontFamily: 'sans-serif' }}>
+      Loading...
+    </div>
+  );
+
+  const navLinkStyle = {
+    color: '#5D4037', textDecoration: 'none',
+    fontSize: '0.95rem', fontFamily: 'sans-serif', fontWeight: '500',
+  };
 
   return (
     <Router>
-     <nav style={{ 
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: '20px 50px', 
-        backgroundColor: 'white',
-        borderBottom: '1px solid #eaeaea'
+      {/* ── NAVBAR ── */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 1000,
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '16px 48px', backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid #F0E0D0',
+        boxShadow: '0 1px 8px rgba(212,115,92,0.08)',
       }}>
-        {/* LOGO */}
-        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '3px' }}>
-          <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>LUXE.</Link>
-        </div>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '2px' }}>
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} style={{ width: '16px', height: '16px', fill: '#DCB91D', color: '#DCB91D' }} />
+            ))}
+          </div>
+          <span style={{ color: '#DCB91D', fontFamily: 'Georgia, serif', fontSize: '1.1rem', fontWeight: '400' }}>
+            The Five Star Salon
+          </span>
+        </Link>
 
-        {/* LINKS */}
-        <div style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
-          <Link to="/" style={{ color: 'black', textDecoration: 'none', textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Home</Link>
-          <Link to="/services" style={{ color: 'black', textDecoration: 'none', textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Services</Link>
-          
+        <div style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
+          <Link to="/" style={navLinkStyle}>Home</Link>
+          <Link to="/about" style={navLinkStyle}>About</Link>
+          <Link to="/services" style={navLinkStyle}>Services</Link>
+
           {user && user.email === ADMIN_EMAIL && (
-            <Link to="/admin" style={{ color: 'red', textDecoration: 'none', textTransform: 'uppercase', fontSize: '14px', letterSpacing: '1px' }}>Admin</Link>
+            <Link to="/admin" style={{ ...navLinkStyle, color: '#C0614D', fontWeight: '700' }}>Admin</Link>
           )}
 
-          {/* ICONS / ACTIONS */}
           {user ? (
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-               <button onClick={handleLogout} style={{ border: 'none', background: 'transparent', textDecoration: 'underline', color: '#666' }}>Logout</button>
-            </div>
+            <button onClick={handleLogout} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: '#5D4037', fontSize: '0.95rem', fontFamily: 'sans-serif',
+              fontWeight: '500', textDecoration: 'underline',
+            }}>
+              Logout
+            </button>
           ) : (
-            <Link to="/login" style={{ fontSize: '24px', color: 'black' }}>
-              <FaUserCircle />
-            </Link>
+            <Link to="/login" style={navLinkStyle}>Login</Link>
           )}
 
-          <Link to="/book" style={{ 
-            padding: '10px 25px', 
-            backgroundColor: 'black', 
-            color: 'white', 
-            textDecoration: 'none', 
-            fontSize: '14px',
-            textTransform: 'uppercase'
-          }}>
-            Book
+          <Link to="/book" style={{ textDecoration: 'none' }}>
+            <button style={{
+              backgroundColor: '#DCB91D', color: '#FFFFFF', border: 'none',
+              padding: '10px 24px', borderRadius: '6px', fontSize: '0.95rem',
+              fontWeight: '700', cursor: 'pointer', fontFamily: 'sans-serif',
+            }}>
+              Book Now
+            </button>
           </Link>
         </div>
       </nav>
+
+      {/* ── ROUTES ── */}
       <Routes>
-        {/* 
-           ROUTE RULES:
-           1. If you go to Login (/) but are already logged in -> Go to Booking.
-           2. If you go to Booking (/book) but are NOT logged in -> Go back to Login.
-           3. If you go to Admin (/admin) but are NOT the admin -> Go back to Login.
-        */}
-        <Route path="/" element={
-        !user ? <Login /> : (
-         user.email === ADMIN_EMAIL ? <Navigate to="/admin" /> : <Navigate to="/services" />
-        )
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/services/:serviceId" element={<ServiceDetails />} />
+
+        <Route path="/login" element={
+          !user ? <Login /> : (
+            user.email === ADMIN_EMAIL ? <Navigate to="/admin" /> : <Navigate to="/" />
+          )
         } />
-        
-        <Route path="/book" element={user ? <Booking /> : <Navigate to="/" />} />
-        
+
+        <Route path="/signup" element={!user ? <SignUp /> : <Navigate to="/" />} />
+        <Route path="/book" element={user ? <Booking /> : <Navigate to="/login" />} />
         <Route path="/admin" element={
           user && user.email === ADMIN_EMAIL ? <AdminPanel /> : <Navigate to="/" />
         } />
-        <Route path="/services" element={user ? <Services /> : <Navigate to="/" />} />
       </Routes>
     </Router>
   );
